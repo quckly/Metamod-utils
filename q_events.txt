@@ -1,0 +1,100 @@
+// Event Manager by quckly
+// 		faq:
+
+// Hook all message functions
+// Example: in amxx module, moduleconfig.h
+#define FN_MessageBegin						MessageBegin
+#define FN_MessageEnd						MessageEnd
+#define FN_WriteByte						WriteByte
+#define FN_WriteChar						WriteChar
+#define FN_WriteShort						WriteShort
+#define FN_WriteLong						WriteLong
+#define FN_WriteAngle						WriteAngle
+#define FN_WriteCoord						WriteCoord
+#define FN_WriteString						WriteString
+#define FN_WriteEntity						WriteEntity
+
+///////////////////////////////////////////////////////////
+// Metamod Handlers
+#include "q_events.h"
+
+void MessageBegin( int msg_dest, int msg_type, const float *pOrigin, edict_t *ed )
+{
+	return Events.EM_MessageBegin( msg_dest, msg_type, pOrigin, ed );
+}
+
+void WriteByte( int iValue )
+{
+	return Events.EM_WriteByte( iValue );
+}
+
+void WriteChar( int iValue )
+{
+	return Events.EM_WriteChar( iValue );
+}
+
+void WriteShort( int iValue )
+{
+	return Events.EM_WriteShort( iValue );
+}
+
+void WriteLong( int iValue )
+{
+	return Events.EM_WriteLong( iValue );
+}
+
+void WriteAngle( float flValue )
+{
+	return Events.EM_WriteAngle( flValue );
+}
+
+void WriteCoord( float flValue )
+{
+	return Events.EM_WriteCoord( flValue );
+}
+
+void WriteString( const char *sz )
+{
+	return Events.EM_WriteString( sz );
+}
+
+void WriteEntity( int iValue )
+{
+	return Events.EM_WriteEntity( iValue );
+}
+
+void MessageEnd( )
+{
+	return Events.EM_MessageEnd( );
+}
+///////////////////////////////////////////////////////////
+
+Use:
+// c++
+///////////////////////////////////////////////////////////
+#include "q_events.h"
+
+int Event_CurWeapon( int msg_dest, int msg_type, const float *pOrigin, edict_t *ed );
+
+void ClientCommand(edict_t* pPlayer)
+{
+	if(!strcmp(CMD_ARGV(1), "hook"))
+	{
+		Events.RegisterEvent( "CurWeapon", &Event_CurWeapon );
+	}
+
+	RETURN_META(MRES_IGNORED);
+}
+
+int Event_CurWeapon( int msg_dest, int msg_type, const float *pOrigin, edict_t *ed )
+{
+	UTIL_ClientPrint(NULL, HUD_PRINTTALK, "Event: CurWeapon dest: %d type: %d ed: %p", msg_dest, msg_type, ed);
+	UTIL_ClientPrint(NULL, HUD_PRINTTALK, "Active: %d ID: %d ClippAmmo: %d", Events.GetArgInt(0), Events.GetArgInt(1), Events.GetArgInt(2));
+
+	UTIL_ClientPrint(NULL, HUD_PRINTTALK, "%d %p", Events.GetArgInt(3), Events.GetArgString(2));
+
+	Events.SetArg(2, 77);
+
+	return ER_IGNORED;
+}
+///////////////////////////////////////////////////////////
