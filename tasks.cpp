@@ -3,7 +3,7 @@
 */
 #include <extdll.h>
 #include <meta_api.h>
-#include "CTasks.h"
+#include "tasks.h"
 
 TaskManager Tasks;
 
@@ -190,13 +190,6 @@ void TaskManager::Think()
                 ++iter;
         }
 	}
- 
-    ++framecount;
-    if( framecount >= 1000 * 60 )
-    {
-            printf("\t\tTaskManager\n\t\t\tby quckly\n");
-            framecount = 0;
-    }
 
 	m_think = false;
 }

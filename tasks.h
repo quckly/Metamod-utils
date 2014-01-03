@@ -17,7 +17,6 @@
 
 #include <list>
 
-
 enum TaskFlags
 {
 	TF_NONE = 0,		// Once exec
