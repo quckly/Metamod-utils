@@ -1,85 +1,103 @@
-/*		TaskManager v0.4
-			by quckly
-
-	How to:
-		1. Create global object TaskManager Tasks;
-		2. Use:
-			Tasks.Add(TASK_Handler, 5.0, TaskID, TF_INF|TF_NONE, (void *) pointer to data, sizeof(data))
-		3. Create handler:
-			void TASK_Handler(void* data, size_t data_size, int taskid) { }
-		4. Add to void StartFrame()
-			Tasks.Think();
-	Functions:
-		In definition of TaskManager
-*/
-
 #pragma once
 
-#include <list>
+#include <vector>
+#include <string>
 
+#include <extdll.h>
+#include <meta_api.h>
 
-enum TaskFlags
+enum
 {
-	TF_NONE = 0,		// Once exec
-	TF_INF				// Infinity loop task
+	ER_IGNORED = 0,
+	ER_SUPERCEDE
 };
 
-enum TaskResult
-{
-	TR_Delete = 0,
-	TR_Save
-};
+typedef int (*EventCallback)(int, int, const float*, edict_t*);
 
-class TaskManager
+class EventManager
 {
+public:
+	// Hook event
+	void RegisterEvent(const int msg_id, EventCallback func);
+	void RegisterEvent(const char* msg_id, EventCallback func);
+
+	// Get args
+	int GetArgInt(int num);
+	float GetArgFloat(int num);
+	const char* GetArgString(int num);
+
+	// Set Args
+	void SetArg(int num, int set);
+	void SetArg(int num, float set);
+	void SetArg(int num, const char* set);
+
+	// Get ID of name of event
+	int ID(const char* msg_name);
+
 private:
-	class Task
+	enum EM_ArgType
+	{
+		at_byte = 0,
+		at_char,
+		at_short,
+		at_long,
+		at_angle,
+		at_coord,
+		at_string,
+		at_entity
+	};
+
+	class EventArg
 	{
 	public:
-		Task(void *const function, const double time, const int taskid, const int flags);
-		Task(void *const function, const double time, const int taskid, const int flags, edict_t *const data);
-		TaskResult Think();
-		int GetTaskID() const;
+		EventArg(EM_ArgType _type, int val) : m_type(_type) { value.iValue = val; };
+		EventArg(EM_ArgType _type, float val) : m_type(_type) { value.flValue = val; };
+		EventArg(EM_ArgType _type, const char* val) : m_type(_type) { str = val; };
 
-		void Remove();
-		bool getRemove() const;
-	private:
-		int m_taskid;
-		void *m_function;
-		double m_time;
-		double m_gametime;
-		int m_flags;
-		edict_t* m_edict;
+		union	u_Value
+		{
+			int iValue;
+			float flValue;
+		}	value;
+		std::string str;
+		
+		EM_ArgType m_type;
+	};
 
-		bool m_remove;
+	class EventRegister
+	{
+	public:
+		EventRegister(int _msg_id, EventCallback _func) : msg_id(_msg_id), func(_func) {};
+
+		EventCallback func;
+		int msg_id;
 	};
 
 public:
-	// Create new task
-	// Return task id. Return -1 if failure.
-	// Function must have this type: void (*)(void*, size_t)
-	void Add(void *const function /* void (*)(void*, size_t) */, const double time = 0.0, const int taskid = 0, const int flags = TF_NONE);
-	void Add(void *const function /* void (*)(void*, size_t) */, const double time, const int taskid, const int flags, edict_t *const data);
+	EventManager();
 
-	// Check task of exist
-	// return 1 or 0
-	BOOL Exist(const int taskid) const;
+	// Handlers
+	void EM_MessageBegin	(int msg_dest, int msg_type, const float *pOrigin, edict_t *ed);
+	void EM_MessageEnd		();
+	void EM_WriteByte		(int iValue);
+	void EM_WriteChar		(int iValue);
+	void EM_WriteShort		(int iValue);
+	void EM_WriteLong		(int iValue);
+	void EM_WriteAngle		(float flValue);
+	void EM_WriteCoord		(float flValue);
+	void EM_WriteString		(const char *sz);
+	void EM_WriteEntity		(int iValue);
 	
-	// Delete task on task id
-	void Delete(const int taskid);
-
-	// Execution this function in void StartFrame()
-	void Think();
-
-	TaskManager();
-
 private:
-	std::list<Task *> tasklist;
-	bool m_think;
+	std::vector<EventArg> m_args;
+	int m_msg_dest, m_msg_type;
+	const float *m_origin;
+	edict_t *m_ed;
 
-	//int nexttaskid;
+	bool m_hook;
 
-	int framecount;
+	// Callbacks
+	std::vector<EventRegister> m_regevents;
 };
 
-extern TaskManager Tasks;
+extern EventManager Events;
