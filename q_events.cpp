@@ -17,8 +17,8 @@ EventManager::EventManager()
 void EventManager::RegisterEvent(const int _msg_id, EventCallback _func)
 {
 	// Check for exist
-	for( auto iter = m_regevents.cbegin(); iter != m_regevents.cend(); iter++ )
-		if( iter->msg_id == _msg_id && iter->func == _func )
+	for (auto iter = m_regevents.cbegin(); iter != m_regevents.cend(); iter++)
+		if (iter->msg_id == _msg_id && iter->func == _func)
 			return;
 
 	m_regevents.push_back(EventRegister(_msg_id, _func));
@@ -37,7 +37,7 @@ int EventManager::ID(const char* msg_name)
 // Get args
 int EventManager::GetArgInt(int num)
 {
-	if( num < 0 || num >= m_args.size() )
+	if (num < 0 || num >= m_args.size())
 		return 0;
 
 	return m_args[num].value.iValue;
@@ -45,7 +45,7 @@ int EventManager::GetArgInt(int num)
 
 float EventManager::GetArgFloat(int num)
 {
-	if( num < 0 || num >= m_args.size() )
+	if (num < 0 || num >= m_args.size())
 		return 0.0;
 
 	return m_args[num].value.flValue;
@@ -53,7 +53,7 @@ float EventManager::GetArgFloat(int num)
 
 const char* EventManager::GetArgString(int num)
 {
-	if( num < 0 || num >= m_args.size() || m_args[num].m_type != at_string )
+	if (num < 0 || num >= m_args.size() || m_args[num].m_type != at_string)
 		return nullptr;
 
 	return m_args[num].str.c_str();
@@ -62,7 +62,7 @@ const char* EventManager::GetArgString(int num)
 // Set Args
 void EventManager::SetArg(int num, int set)
 {
-	if( num < 0 || num >= m_args.size() )
+	if (num < 0 || num >= m_args.size())
 		return;
 
 	m_args[num].value.iValue = set;
@@ -70,7 +70,7 @@ void EventManager::SetArg(int num, int set)
 
 void EventManager::SetArg(int num, float set)
 {
-	if( num < 0 || num >= m_args.size() )
+	if (num < 0 || num >= m_args.size())
 		return;
 
 	m_args[num].value.flValue = set;
@@ -78,21 +78,20 @@ void EventManager::SetArg(int num, float set)
 
 void EventManager::SetArg(int num, const char* set)
 {
-	if( num < 0 || num >= m_args.size() || m_args[num].m_type != at_string )
+	if (num < 0 || num >= m_args.size() || m_args[num].m_type != at_string)
 		return;
 
 	m_args[num].str = set;
 }
 
 // Handlers
-void EventManager::EM_MessageBegin	(int msg_dest, int msg_type, const float *pOrigin, edict_t *ed)
+void EventManager::EM_MessageBegin(int msg_dest, int msg_type, const float *pOrigin, edict_t *ed)
 {
 	m_hook = false;
-
-	// Find first register event
-	for( auto iter = m_regevents.cbegin(); iter != m_regevents.cend(); iter++ )
+	
+	for (auto iter = m_regevents.cbegin(); iter != m_regevents.cend(); iter++)
 	{
-		if( msg_type == iter->msg_id )
+		if (msg_type == iter->msg_id)
 		{
 			m_hook = true;
 
@@ -108,25 +107,25 @@ void EventManager::EM_MessageBegin	(int msg_dest, int msg_type, const float *pOr
 	RETURN_META(MRES_IGNORED);
 }
 
-void EventManager::EM_MessageEnd		()
+void EventManager::EM_MessageEnd()
 {
-	if(m_hook)
+	if (m_hook)
 	{
 		int cb_return = ER_IGNORED, _cbret;
 
-		// Execute all register event
-		for( auto iter = m_regevents.cbegin(); iter != m_regevents.cend(); iter++ )
+		// Execute all registered events
+		for (auto iter = m_regevents.cbegin(); iter != m_regevents.cend(); iter++)
 		{
-			if( m_msg_type == iter->msg_id )
+			if (m_msg_type == iter->msg_id)
 			{
 				_cbret = iter->func(m_msg_dest, m_msg_type, m_origin, m_ed);
 				
-				if(_cbret == ER_SUPERCEDE)
+				if (_cbret == ER_SUPERCEDE)
 					cb_return = ER_SUPERCEDE;
 			}
 		}
 
-		if( cb_return == ER_SUPERCEDE )
+		if (cb_return == ER_SUPERCEDE)
 		{
 			RETURN_META(MRES_SUPERCEDE);
 		}
@@ -134,9 +133,9 @@ void EventManager::EM_MessageEnd		()
 		// Send message
 		MESSAGE_BEGIN(m_msg_dest, m_msg_type, m_origin, m_ed);
 
-		for( auto iter = m_args.cbegin(); iter != m_args.cend(); iter++ )
+		for (auto iter = m_args.cbegin(); iter != m_args.cend(); iter++)
 		{
-			switch(iter->m_type)
+			switch (iter->m_type)
 			{
 			case at_byte:
 				WRITE_BYTE(iter->value.iValue);
@@ -178,9 +177,9 @@ void EventManager::EM_MessageEnd		()
 	RETURN_META(MRES_IGNORED);
 }
 
-void EventManager::EM_WriteByte		(int iValue)
+void EventManager::EM_WriteByte(int iValue)
 {
-	if( !m_hook )
+	if (!m_hook)
 		RETURN_META(MRES_IGNORED);
 
 	m_args.push_back(EventArg(at_byte, iValue));
@@ -188,9 +187,9 @@ void EventManager::EM_WriteByte		(int iValue)
 	RETURN_META(MRES_SUPERCEDE);
 }
 
-void EventManager::EM_WriteChar		(int iValue)
+void EventManager::EM_WriteChar(int iValue)
 {
-	if( !m_hook )
+	if (!m_hook)
 		RETURN_META(MRES_IGNORED);
 
 	m_args.push_back(EventArg(at_char, iValue));
@@ -198,9 +197,9 @@ void EventManager::EM_WriteChar		(int iValue)
 	RETURN_META(MRES_SUPERCEDE);
 }
 
-void EventManager::EM_WriteShort		(int iValue)
+void EventManager::EM_WriteShort(int iValue)
 {
-	if( !m_hook )
+	if (!m_hook)
 		RETURN_META(MRES_IGNORED);
 
 	m_args.push_back(EventArg(at_short, iValue));
@@ -208,9 +207,9 @@ void EventManager::EM_WriteShort		(int iValue)
 	RETURN_META(MRES_SUPERCEDE);
 }
 
-void EventManager::EM_WriteLong		(int iValue)
+void EventManager::EM_WriteLong(int iValue)
 {
-	if( !m_hook )
+	if (!m_hook)
 		RETURN_META(MRES_IGNORED);
 
 	m_args.push_back(EventArg(at_long, iValue));
@@ -218,9 +217,9 @@ void EventManager::EM_WriteLong		(int iValue)
 	RETURN_META(MRES_SUPERCEDE);
 }
 
-void EventManager::EM_WriteAngle		(float flValue)
+void EventManager::EM_WriteAngle(float flValue)
 {
-	if( !m_hook )
+	if (!m_hook)
 		RETURN_META(MRES_IGNORED);
 
 	m_args.push_back(EventArg(at_angle, flValue));
@@ -228,9 +227,9 @@ void EventManager::EM_WriteAngle		(float flValue)
 	RETURN_META(MRES_SUPERCEDE);
 }
 
-void EventManager::EM_WriteCoord		(float flValue)
+void EventManager::EM_WriteCoord(float flValue)
 {
-	if( !m_hook )
+	if (!m_hook)
 		RETURN_META(MRES_IGNORED);
 
 	m_args.push_back(EventArg(at_coord, flValue));
@@ -238,9 +237,9 @@ void EventManager::EM_WriteCoord		(float flValue)
 	RETURN_META(MRES_SUPERCEDE);
 }
 
-void EventManager::EM_WriteString		(const char *sz)
+void EventManager::EM_WriteString(const char *sz)
 {
-	if( !m_hook )
+	if (!m_hook)
 		RETURN_META(MRES_IGNORED);
 
 	m_args.push_back(EventArg(at_string, sz));
@@ -248,9 +247,9 @@ void EventManager::EM_WriteString		(const char *sz)
 	RETURN_META(MRES_SUPERCEDE);
 }
 
-void EventManager::EM_WriteEntity		(int iValue)
+void EventManager::EM_WriteEntity(int iValue)
 {
-	if( !m_hook )
+	if (!m_hook)
 		RETURN_META(MRES_IGNORED);
 
 	m_args.push_back(EventArg(at_entity, iValue));

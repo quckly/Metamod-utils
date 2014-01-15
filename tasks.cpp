@@ -1,4 +1,4 @@
-/*		TaskManager 0.4
+/*		TaskManager 0.5
 			by quckly
 */
 #include <extdll.h>
@@ -7,29 +7,15 @@
 
 TaskManager Tasks;
 
-TaskManager::Task::Task(void *const function, const double time, const int taskid, const int flags)
+TaskManager::Task::Task(TaskCallback function, const double time, const int taskid, const int flags, edict_t* data)
 {
-	m_edict = nullptr;
-
 	m_taskid = taskid;
 	m_function = function;
 	m_time = time;
 	m_gametime = gpGlobals->time + m_time;
 	m_flags = flags;
-
-	m_remove = false;
-}
-
-TaskManager::Task::Task(void *const function, const double time, const int taskid, const int flags, edict_t *const data)
-{
 	m_edict = data;
-
-	m_taskid = taskid;
-	m_function = function;
-	m_time = time;
-	m_gametime = gpGlobals->time + m_time;
-	m_flags = flags;
-
+	
 	m_remove = false;
 }
 
@@ -45,11 +31,11 @@ bool TaskManager::Task::getRemove() const
 
 TaskResult TaskManager::Task::Think()
 {
-	if( gpGlobals->time >= m_gametime )
+	if (gpGlobals->time >= m_gametime)
 	{
-		reinterpret_cast< void (*)(void*, size_t)>(m_function)(m_edict, 0);
+		m_function(m_edict);
 		
-		if( m_flags & TF_INF )
+		if (m_flags & TF_INF)
 		{
 			m_gametime = gpGlobals->time + m_time;
 			return TR_Save;
@@ -71,40 +57,22 @@ TaskManager::TaskManager()
 	//nexttaskid = 0;
 	framecount = 0;
 }
-// govnokod
-void TaskManager::Add(void *const function, const double time, const int taskid, const int flags)
+
+void TaskManager::Add(TaskCallback function, const double time, const int taskid, const int flags)
 {
-	if( function == NULL )
-	{
-		//UTIL_LogPrintf("[TASKS] Invalid function\n");
-
-		return;
-	}
-
-	if( time < 0.0 )
-	{
-		//UTIL_LogPrintf("[TASKS] Invalid time (%f)\n", time);
-
-		return;
-	}
-
-	Task *TempTask = new Task(function, time, taskid, flags);
-
-	tasklist.push_back(TempTask);
-
-	return;
+	Add(function, time, taskid, flags, nullptr);
 }
 
-void TaskManager::Add(void *const function, const double time, const int taskid, const int flags, edict_t *const data)
+void TaskManager::Add(TaskCallback function, const double time, const int taskid, const int flags, edict_t* data)
 {
-	if( function == NULL )
+	if (function == nullptr)
 	{
 		//UTIL_LogPrintf("[TASKS] Invalid function\n");
 
 		return;
 	}
 
-	if( time < 0.0 )
+	if (time < 0.0)
 	{
 		//UTIL_LogPrintf("[TASKS] Invalid time (%f)\n", time);
 
@@ -117,21 +85,21 @@ void TaskManager::Add(void *const function, const double time, const int taskid,
 
 	return;
 }
-// end
-BOOL TaskManager::Exist(const int task) const
+
+bool TaskManager::Exists(const int task) const
 {
-	for( std::list<Task *>::const_iterator iter = tasklist.begin(); iter != tasklist.end(); iter++)
+	for (std::list<Task *>::const_iterator iter = tasklist.begin(); iter != tasklist.end(); iter++)
 	{
-		if( (*iter)->GetTaskID() == task )
-			return TRUE;
+		if ((*iter)->GetTaskID() == task)
+			return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 void TaskManager::Delete(const int task)
 {
-    for (std::list<Task *>::iterator iter = tasklist.begin(); iter != tasklist.end(); )
+    for (std::list<Task *>::iterator iter = tasklist.begin(); iter != tasklist.end();)
     {
             if ((*iter)->GetTaskID() == task)
             {
@@ -157,7 +125,7 @@ void TaskManager::Think()
 {
 	m_think = true;
 
-    for (std::list<Task *>::iterator iter = tasklist.begin(); iter != tasklist.end(); )
+    for (std::list<Task *>::iterator iter = tasklist.begin(); iter != tasklist.end();)
     {
 		if ((*iter)->getRemove())
 		{
@@ -178,7 +146,7 @@ void TaskManager::Think()
         }
     }
 
-	for (std::list<Task *>::iterator iter = tasklist.begin(); iter != tasklist.end(); )
+	for (std::list<Task *>::iterator iter = tasklist.begin(); iter != tasklist.end();)
     {
 		if ((*iter)->getRemove())
 		{

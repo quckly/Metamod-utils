@@ -1,26 +1,31 @@
-/*		TaskManager v0.4
-			by quckly
+/*		TaskManager v0.5
+			by quckly	(quckly.ru)
+			
+	Require c++11
 
 	How to:
 		1. Create global object TaskManager Tasks;
+			P.S.: Already created in tasks.cpp
 		2. Use:
-			Tasks.Add(TASK_Handler, 5.0, TaskID, TF_INF|TF_NONE, (void *) pointer to data, sizeof(data))
+			Tasks.Add(TASK_Handler, 5.0, TaskID, TF_INF|TF_NONE)
 		3. Create handler:
-			void TASK_Handler(void* data, size_t data_size, int taskid) { }
+			void TASK_Handler(edict_t* ent) { }
 		4. Add to void StartFrame()
 			Tasks.Think();
 	Functions:
 		In definition of TaskManager
 */
-
 #pragma once
 
 #include <list>
 
+class TaskManager;
+extern TaskManager Tasks;
+
 enum TaskFlags
 {
 	TF_NONE = 0,		// Once exec
-	TF_INF				// Infinity loop task
+	TF_INF	= 1			// Infinity loop task
 };
 
 enum TaskResult
@@ -29,14 +34,15 @@ enum TaskResult
 	TR_Save
 };
 
+typedef void (*TaskCallback)(edict_t* ent);
+
 class TaskManager
 {
 private:
 	class Task
 	{
 	public:
-		Task(void *const function, const double time, const int taskid, const int flags);
-		Task(void *const function, const double time, const int taskid, const int flags, edict_t *const data);
+		Task(TaskCallback function, const double time, const int taskid, const int flags, edict_t* data);
 		TaskResult Think();
 		int GetTaskID() const;
 
@@ -55,30 +61,20 @@ private:
 
 public:
 	// Create new task
-	// Return task id. Return -1 if failure.
-	// Function must have this type: void (*)(void*, size_t)
-	void Add(void *const function /* void (*)(void*, size_t) */, const double time = 0.0, const int taskid = 0, const int flags = TF_NONE);
-	void Add(void *const function /* void (*)(void*, size_t) */, const double time, const int taskid, const int flags, edict_t *const data);
-
-	// Check task of exist
-	// return 1 or 0
-	BOOL Exist(const int taskid) const;
+	void Add(TaskCallback function, const double time = 0.0, const int taskid = 0, const int flags = TF_NONE);
+	void Add(TaskCallback function, const double time, const int taskid, const int flags, edict_t* data);
 	
-	// Delete task on task id
+	bool Exists(const int taskid) const;
+	
+	// Delete a task by task ID
 	void Delete(const int taskid);
 
-	// Execution this function in void StartFrame()
+	// Execution this function in |void StartFrame()|
 	void Think();
 
 	TaskManager();
 
 private:
-	std::list<Task *> tasklist;
+	std::list<Task*> tasklist;
 	bool m_think;
-
-	//int nexttaskid;
-
-	int framecount;
 };
-
-extern TaskManager Tasks;
