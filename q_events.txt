@@ -18,54 +18,54 @@
 // Metamod Handlers
 #include "q_events.h"
 
-void MessageBegin( int msg_dest, int msg_type, const float *pOrigin, edict_t *ed )
+void MessageBegin(int msg_dest, int msg_type, const float *pOrigin, edict_t *ed)
 {
-	return Events.EM_MessageBegin( msg_dest, msg_type, pOrigin, ed );
+	return Events.EM_MessageBegin(msg_dest, msg_type, pOrigin, ed);
 }
 
-void WriteByte( int iValue )
+void WriteByte(int iValue)
 {
-	return Events.EM_WriteByte( iValue );
+	return Events.EM_WriteByte(iValue);
 }
 
-void WriteChar( int iValue )
+void WriteChar(int iValue)
 {
-	return Events.EM_WriteChar( iValue );
+	return Events.EM_WriteChar(iValue);
 }
 
-void WriteShort( int iValue )
+void WriteShort(int iValue)
 {
-	return Events.EM_WriteShort( iValue );
+	return Events.EM_WriteShort(iValue);
 }
 
-void WriteLong( int iValue )
+void WriteLong(int iValue)
 {
-	return Events.EM_WriteLong( iValue );
+	return Events.EM_WriteLong(iValue);
 }
 
-void WriteAngle( float flValue )
+void WriteAngle(float flValue)
 {
-	return Events.EM_WriteAngle( flValue );
+	return Events.EM_WriteAngle(flValue);
 }
 
-void WriteCoord( float flValue )
+void WriteCoord(float flValue)
 {
-	return Events.EM_WriteCoord( flValue );
+	return Events.EM_WriteCoord(flValue);
 }
 
-void WriteString( const char *sz )
+void WriteString(const char *sz)
 {
-	return Events.EM_WriteString( sz );
+	return Events.EM_WriteString(sz);
 }
 
-void WriteEntity( int iValue )
+void WriteEntity(int iValue)
 {
-	return Events.EM_WriteEntity( iValue );
+	return Events.EM_WriteEntity(iValue);
 }
 
-void MessageEnd( )
+void MessageEnd()
 {
-	return Events.EM_MessageEnd( );
+	return Events.EM_MessageEnd();
 }
 ///////////////////////////////////////////////////////////
 
@@ -74,19 +74,19 @@ Use:
 ///////////////////////////////////////////////////////////
 #include "q_events.h"
 
-int Event_CurWeapon( int msg_dest, int msg_type, const float *pOrigin, edict_t *ed );
+int Event_CurWeapon(int msg_dest, int msg_type, const float *pOrigin, edict_t *ed);
 
 void ClientCommand(edict_t* pPlayer)
 {
-	if(!strcmp(CMD_ARGV(1), "hook"))
+	if (!strcmp(CMD_ARGV(1), "hook"))
 	{
-		Events.RegisterEvent( "CurWeapon", &Event_CurWeapon );
+		Events.RegisterEvent("CurWeapon", &Event_CurWeapon);
 	}
 
 	RETURN_META(MRES_IGNORED);
 }
 
-int Event_CurWeapon( int msg_dest, int msg_type, const float *pOrigin, edict_t *ed )
+int Event_CurWeapon(int msg_dest, int msg_type, const float *pOrigin, edict_t *ed)
 {
 	UTIL_ClientPrint(NULL, HUD_PRINTTALK, "Event: CurWeapon dest: %d type: %d ed: %p", msg_dest, msg_type, ed);
 	UTIL_ClientPrint(NULL, HUD_PRINTTALK, "Active: %d ID: %d ClippAmmo: %d", Events.GetArgInt(0), Events.GetArgInt(1), Events.GetArgInt(2));

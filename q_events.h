@@ -35,8 +35,7 @@ public:
 	int ID(const char* msg_name);
 
 private:
-	enum EM_ArgType
-	{
+	enum EM_ArgType{
 		at_byte = 0,
 		at_char,
 		at_short,
@@ -77,16 +76,16 @@ public:
 	EventManager();
 
 	// Handlers
-	void EM_MessageBegin	(int msg_dest, int msg_type, const float *pOrigin, edict_t *ed);
-	void EM_MessageEnd		();
-	void EM_WriteByte		(int iValue);
-	void EM_WriteChar		(int iValue);
-	void EM_WriteShort		(int iValue);
-	void EM_WriteLong		(int iValue);
-	void EM_WriteAngle		(float flValue);
-	void EM_WriteCoord		(float flValue);
-	void EM_WriteString		(const char *sz);
-	void EM_WriteEntity		(int iValue);
+	void EM_MessageBegin(int msg_dest, int msg_type, const float *pOrigin, edict_t *ed);
+	void EM_MessageEnd();
+	void EM_WriteByte(int iValue);
+	void EM_WriteChar(int iValue);
+	void EM_WriteShort(int iValue);
+	void EM_WriteLong(int iValue);
+	void EM_WriteAngle(float flValue);
+	void EM_WriteCoord(float flValue);
+	void EM_WriteString(const char *sz);
+	void EM_WriteEntity(int iValue);
 	
 private:
 	std::vector<EventArg> m_args;
