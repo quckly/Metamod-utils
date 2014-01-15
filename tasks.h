@@ -50,7 +50,7 @@ private:
 		bool getRemove() const;
 	private:
 		int m_taskid;
-		void *m_function;
+		TaskCallback m_function;
 		double m_time;
 		double m_gametime;
 		int m_flags;
@@ -71,8 +71,6 @@ public:
 
 	// Execution this function in |void StartFrame()|
 	void Think();
-
-	TaskManager();
 
 private:
 	std::list<Task*> tasklist;

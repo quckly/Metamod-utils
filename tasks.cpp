@@ -52,12 +52,6 @@ int TaskManager::Task::GetTaskID() const
 	return m_taskid;
 }
 
-TaskManager::TaskManager()
-{
-	//nexttaskid = 0;
-	framecount = 0;
-}
-
 void TaskManager::Add(TaskCallback function, const double time, const int taskid, const int flags)
 {
 	Add(function, time, taskid, flags, nullptr);

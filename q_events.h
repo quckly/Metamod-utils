@@ -35,7 +35,8 @@ public:
 	int ID(const char* msg_name);
 
 private:
-	enum EM_ArgType{
+	enum EM_ArgType
+	{
 		at_byte = 0,
 		at_char,
 		at_short,
