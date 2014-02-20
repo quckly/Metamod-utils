@@ -1,6 +1,6 @@
 /*
-*		Event Manager by quckly
-*				Version: 1.0
+*		Event Manager by quckly.ru
+*				Version: 1.1
 *
 */
 
