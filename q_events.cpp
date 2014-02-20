@@ -1,6 +1,6 @@
 /*
-*		Event Manager by quckly
-*				Version: 1.0
+*		Event Manager by quckly.ru
+*				Version: 1.1
 *
 */
 
@@ -87,6 +87,7 @@ void EventManager::SetArg(int num, const char* set)
 // Handlers
 void EventManager::EM_MessageBegin(int msg_dest, int msg_type, const float *pOrigin, edict_t *ed)
 {
+	m_args.clear();
 	m_hook = false;
 	
 	for (auto iter = m_regevents.cbegin(); iter != m_regevents.cend(); iter++)
@@ -111,6 +112,8 @@ void EventManager::EM_MessageEnd()
 {
 	if (m_hook)
 	{
+		m_hook = false;
+
 		int cb_return = ER_IGNORED, _cbret;
 
 		// Execute all registered events
@@ -165,12 +168,7 @@ void EventManager::EM_MessageEnd()
 		}
 
 		MESSAGE_END();
-
-		// Clear
-		m_args.clear();
-
-		m_hook = false;
-
+		
 		RETURN_META(MRES_SUPERCEDE);
 	}
 
